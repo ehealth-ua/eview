@@ -1,11 +1,11 @@
 defmodule EView.Mixfile do
   use Mix.Project
 
-  @version "0.15.0"
+  @version "0.15.1"
 
   def project do
     [
-      app: :eview,
+      app: :eview2,
       description: "Plug that converts response to Nebo #15 API spec format.",
       package: package(),
       version: @version,
@@ -48,27 +48,26 @@ defmodule EView.Mixfile do
   defp deps do
     [
       {:plug, "~> 1.3"},
-      {:jason, "~> 1.0"},
+      {:jason, "~> 1.3.0", only: [:dev, :test]},
+      {:decimal, "~> 2.1.1"},
+      {:excoveralls, "~> 0.14.2", only: [:dev, :test]},
+      {:credo, "~> 1.6.1", only: [:dev, :test]},
       {:ecto, "~> 2.1 or ~> 3.0", optional: true},
-      {:credit_card, "~> 1.0", optional: true},
       {:nex_json_schema2, "~> 0.8.7", optional: true},
-      {:postgrex, "~> 0.14.0", only: [:dev, :test]},
       {:plug_cowboy, "~> 2.0", only: [:dev, :test]},
       {:httpoison, "~> 1.4.0", only: [:dev, :test]},
       {:phoenix, "~> 1.4", only: [:dev, :test]},
-      {:ex_doc, ">= 0.0.0", only: [:dev, :test]},
-      {:excoveralls, ">= 0.5.0", only: [:dev, :test]},
-      {:credo, ">= 0.4.8", only: [:dev, :test]}
+      {:ex_doc, ">= 0.0.0", only: [:dev, :test]}
     ]
   end
 
   # Settings for publishing in Hex package manager:
   defp package do
     [
-      contributors: ["Nebo #15"],
-      maintainers: ["Nebo #15"],
+      contributors: ["NHSU"],
+      maintainers: ["NHSU"],
       licenses: ["LISENSE.md"],
-      links: %{github: "https://github.com/Nebo15/eview"},
+      links: %{github: "https://github.com/ehealth-ua/eview"},
       files: ~w(lib LICENSE.md mix.exs README.md)
     ]
   end
