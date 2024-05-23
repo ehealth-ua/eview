@@ -51,7 +51,7 @@ defmodule EView.Mixfile do
       {:jason, "~> 1.0"},
       {:ecto, "~> 2.1 or ~> 3.0", optional: true},
       {:credit_card, "~> 1.0", optional: true},
-      {:nex_json_schema, "~> 0.8.0", optional: true},
+      {:nex_json_schema2, "~> 0.8.7", optional: true},
       {:postgrex, "~> 0.14.0", only: [:dev, :test]},
       {:plug_cowboy, "~> 2.0", only: [:dev, :test]},
       {:httpoison, "~> 1.4.0", only: [:dev, :test]},
