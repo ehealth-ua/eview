@@ -74,7 +74,11 @@ if Code.ensure_loaded?(Ecto) do
 
     defp reduce_rule_params(field, validation_name, validations) do
       validations
-      |> Keyword.get_values(field)
+      |> Enum.reduce([], fn
+        {^field, v}, acc -> [v | acc]
+        _, acc -> acc
+      end)
+      |> Enum.reverse()
       |> Enum.reduce([], fn
         # Validation with keywords
         {^validation_name, [h | _] = keyword}, acc when is_tuple(h) ->

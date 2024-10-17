@@ -284,19 +284,19 @@ defmodule EViewAcceptanceTest do
              "error" => %{
                "invalid" => [
                  %{
-                   "entry" => "$.loans_count",
-                   "entry_type" => "json_data_property",
-                   "rules" => [
-                     %{"rule" => "required"}
-                   ]
-                 },
-                 %{
                    "entry" => "$.originator",
                    "entry_type" => "json_data_property",
                    "rules" => [
                      %{
                        "rule" => "required"
                      }
+                   ]
+                 },
+                 %{
+                   "entry" => "$.loans_count",
+                   "entry_type" => "json_data_property",
+                   "rules" => [
+                     %{"rule" => "required"}
                    ]
                  }
                ],
@@ -334,7 +334,7 @@ defmodule EViewAcceptanceTest do
                    "rules" => [
                      %{
                        "description" => "value is not allowed in enum",
-                       "params" => ["a", "b"],
+                       "params" => %{"values" => ["a", "b"]},
                        "rule" => "inclusion"
                      }
                    ]
@@ -345,7 +345,7 @@ defmodule EViewAcceptanceTest do
                    "rules" => [
                      %{
                        "description" => "required property loans_count was not present",
-                       "params" => [],
+                       "params" => %{"property" => "loans_count"},
                        "rule" => "required"
                      }
                    ]

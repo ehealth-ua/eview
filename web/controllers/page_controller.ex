@@ -31,7 +31,7 @@ defmodule Demo.PageController do
         conn
         |> put_status(422)
         |> put_view(EView.Views.ValidationError)
-        |> render("422.json", changeset)
+        |> render("422.json", changeset: changeset)
     end
   end
 

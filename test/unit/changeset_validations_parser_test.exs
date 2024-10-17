@@ -167,20 +167,20 @@ defmodule EView.ChangesetValidationsParserTest do
     assert %{
              invalid: [
                %{
-                 entry: "$.posts",
-                 rules: [
-                   %{
-                     rule: :cast,
-                     params: [:maps_array]
-                   }
-                 ]
-               },
-               %{
                  entry: "$.title",
                  rules: [
                    %{
                      rule: :required,
                      params: []
+                   }
+                 ]
+               },
+               %{
+                 entry: "$.posts",
+                 rules: [
+                   %{
+                     rule: :cast,
+                     params: [:maps_array]
                    }
                  ]
                }
@@ -195,20 +195,20 @@ defmodule EView.ChangesetValidationsParserTest do
     assert %{
              invalid: [
                %{
-                 entry: "$.posts",
-                 rules: [
-                   %{
-                     rule: :cast,
-                     params: [:maps_array]
-                   }
-                 ]
-               },
-               %{
                  entry: "$.title",
                  rules: [
                    %{
                      rule: :required,
                      params: []
+                   }
+                 ]
+               },
+               %{
+                 entry: "$.posts",
+                 rules: [
+                   %{
+                     rule: :cast,
+                     params: [:maps_array]
                    }
                  ]
                }
@@ -222,6 +222,15 @@ defmodule EView.ChangesetValidationsParserTest do
 
     assert %{
              invalid: [
+               %{
+                 entry: "$.title",
+                 rules: [
+                   %{
+                     rule: :required,
+                     params: []
+                   }
+                 ]
+               },
                %{
                  entry: "$.post.upvotes",
                  rules: [
@@ -237,15 +246,6 @@ defmodule EView.ChangesetValidationsParserTest do
                    %{
                      rule: :cast,
                      params: [:integer]
-                   }
-                 ]
-               },
-               %{
-                 entry: "$.title",
-                 rules: [
-                   %{
-                     rule: :required,
-                     params: []
                    }
                  ]
                }
@@ -748,7 +748,7 @@ defmodule EView.ChangesetValidationsParserTest do
                  rules: [
                    %{
                      rule: :acceptance,
-                     params: []
+                     params: %{message: "must be abided"}
                    }
                  ]
                }
@@ -818,60 +818,62 @@ defmodule EView.ChangesetValidationsParserTest do
            } = EView.Views.ValidationError.render("422.json", changeset)
   end
 
-  test "validate_card_number/3" do
-    changeset =
-      %{"virtual" => "4242424242424242"}
-      |> changeset()
-      |> EView.Changeset.Validators.CardNumber.validate_card_number(:virtual)
+  if Code.ensure_loaded?(Ecto) and Code.ensure_loaded?(CreditCard) do
+    test "validate_card_number/3" do
+      changeset =
+        %{"virtual" => "4242424242424242"}
+        |> changeset()
+        |> EView.Changeset.Validators.CardNumber.validate_card_number(:virtual)
 
-    assert changeset.valid?
+      assert changeset.valid?
 
-    changeset =
-      %{"virtual" => "5457000000000001"}
-      |> changeset()
-      |> EView.Changeset.Validators.CardNumber.validate_card_number(:virtual)
+      changeset =
+        %{"virtual" => "5457000000000001"}
+        |> changeset()
+        |> EView.Changeset.Validators.CardNumber.validate_card_number(:virtual)
 
-    refute changeset.valid?
+      refute changeset.valid?
 
-    assert %{
-             invalid: [
-               %{
-                 entry: "$.virtual",
-                 rules: [
-                   %{
-                     rule: :card_number,
-                     params: [],
-                     description: "is not a valid card number"
-                   }
-                 ]
-               }
-             ]
-           } = EView.Views.ValidationError.render("422.json", changeset)
+      assert %{
+               invalid: [
+                 %{
+                   entry: "$.virtual",
+                   rules: [
+                     %{
+                       rule: :card_number,
+                       params: [],
+                       description: "is not a valid card number"
+                     }
+                   ]
+                 }
+               ]
+             } = EView.Views.ValidationError.render("422.json", changeset)
 
-    changeset =
-      %{"virtual" => "5457000000000001"}
-      |> changeset()
-      |> EView.Changeset.Validators.CardNumber.validate_card_number(
-        :virtual,
-        message: "is not a valid card number. We accept only: %{allowed_card_types}"
-      )
+      changeset =
+        %{"virtual" => "5457000000000001"}
+        |> changeset()
+        |> EView.Changeset.Validators.CardNumber.validate_card_number(
+          :virtual,
+          message: "is not a valid card number. We accept only: %{allowed_card_types}"
+        )
 
-    refute changeset.valid?
+      refute changeset.valid?
 
-    assert %{
-             invalid: [
-               %{
-                 entry: "$.virtual",
-                 rules: [
-                   %{
-                     rule: :card_number,
-                     params: [],
-                     description: "is not a valid card number. We accept only: visa, master_card"
-                   }
-                 ]
-               }
-             ]
-           } = EView.Views.ValidationError.render("422.json", changeset)
+      assert %{
+               invalid: [
+                 %{
+                   entry: "$.virtual",
+                   rules: [
+                     %{
+                       rule: :card_number,
+                       params: [],
+                       description: "is not a valid card number. We accept only: visa, master_card"
+                     }
+                   ]
+                 }
+               ]
+             } = EView.Views.ValidationError.render("422.json", changeset)
+    end
   end
 
   test "cast maps" do
@@ -987,5 +989,57 @@ defmodule EView.ChangesetValidationsParserTest do
                }
              ]
            } = EView.Views.ValidationError.render("422.json", changeset)
+  end
+
+  describe "when there is a custom error and path to field is binary" do
+    test "returns valid error message when validation is :cast" do
+      changeset =
+        %{"metadata" => %{}}
+        |> changeset()
+        |> add_error("metadata[0]", "Something is invalid.", validation: :cast, type: "test")
+
+      assert %{
+               invalid: [
+                 %{
+                   entry: "$.metadata[0]",
+                   entry_type: "json_data_property",
+                   rules: [
+                     %{
+                       description: "Something is invalid.",
+                       params: ["test"],
+                       rule: :cast
+                     }
+                   ]
+                 }
+               ],
+               message: _,
+               type: :validation_failed
+             } = EView.Views.ValidationError.render("422.json", changeset)
+    end
+
+    test "returns valid error message when validation is :test" do
+      changeset =
+        %{"metadata" => %{}}
+        |> changeset()
+        |> add_error("metadata[0]", "Something is invalid.", validation: :test)
+
+      assert %{
+               invalid: [
+                 %{
+                   entry: "$.metadata[0]",
+                   entry_type: "json_data_property",
+                   rules: [
+                     %{
+                       description: "Something is invalid.",
+                       params: [],
+                       rule: :test
+                     }
+                   ]
+                 }
+               ],
+               message: _,
+               type: :validation_failed
+             } = EView.Views.ValidationError.render("422.json", changeset)
+    end
   end
 end
